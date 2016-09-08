@@ -1,0 +1,11 @@
+CREATE FUNCTION lock_rvn_check() RETURNS trigger AS $lock_rvn_check$
+    BEGIN
+        IF NEW.rvn NOT = OLD.rvn + 1
+            RAISE EXCEPTION 'optimistic lock exception';
+        END IF;
+        RETURN NEW;
+    END;
+$lock_rvn_check$ LANGUAGE plpgsql;
+
+CREATE TRIGGER lock_rvn_check BEFORE UPDATE ON lock
+    FOR EACH ROW EXECUTE PROCEDURE lock_rvn_check();
